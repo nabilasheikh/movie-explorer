@@ -1,50 +1,94 @@
-# Welcome to your Expo app 👋
+# Movie Explorer App 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application for exploring movies, built with Expo and TypeScript. Browse popular movies, search for specific titles, view detailed information, and manage your favorite movies.
 
-## Get started
+## Features 
 
-1. Install dependencies
+- Browse popular movies
+- Search movies by title
+- View detailed movie information
+- Rate movies
+- Save favorites
+- Beautiful, responsive UI
 
+## Tech Stack 
+
+- React Native
+- Expo SDK 52.0.0
+- TypeScript
+- Redux Toolkit (State Management)
+- React Navigation
+- The Movie Database (TMDB) API
+- Axios for API calls
+
+## Prerequisites 
+
+- Node.js (v18 or newer)
+- npm or yarn
+- Expo CLI
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
+
+## Installation 
+
+1. Clone the repository:
+   ```bash
+   git clone [your-repo-url]
+   cd hello-world-app
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
-   ```bash
-    npx expo start
+3. Create a `.env` file in the root directory with your TMDB API key:
+   ```
+   TMDB_API_KEY=your_api_key_here
+   TMDB_BASE_URL=https://api.themoviedb.org/3
+   TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
    ```
 
-In the output, you'll find options to open the app in a
+## Running the App 
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+1. Start the development server:
+   ```bash
+   npx expo start
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+2. Run on specific platform:
+   - Press `i` for iOS
 
-## Get a fresh project
+## Development 
 
-When you're ready, run:
+- `app/` - Main application code
+- `components/` - Reusable React components
+- `store/` - Redux store configuration and slices
+- `hooks/` - Custom React hooks
+- `types/` - TypeScript type definitions
 
-```bash
-npm run reset-project
-```
+## Environment Setup 
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+### iOS Development
+1. Install Xcode
+2. Install CocoaPods
+3. Configure iOS Simulator
 
-To learn more about developing your project with Expo, look at the following resources:
+## Contributing 
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Join the community
+## License 
 
-Join our community of developers creating universal apps.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Acknowledgments 
+
+- [The Movie Database (TMDB)](https://www.themoviedb.org/) for providing the movie data API
+- [Expo](https://expo.dev/) for the amazing React Native development platform
+- All the open-source libraries used in this project
