@@ -32,6 +32,7 @@ interface Movie {
   release_date: string;
   vote_average: number;
   vote_count: number;
+  genres: Array<{ id: number; name: string }>;
   genre_ids: number[];
 }
 
@@ -133,29 +134,26 @@ export default function MovieDetailScreen() {
         ) : movie ? (
           <>
             <View style={styles.headerContainer}>
-              <TouchableOpacity 
-                style={styles.backButton} 
+              <TouchableOpacity
+                style={styles.backButton}
                 onPress={handleBack}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <View style={styles.iconContainer}>
-                  <IconSymbol name="chevron.left" size={24} color="#000" />
-                </View>
+                <IconSymbol name="chevron.left" size={24} color="#000" />
               </TouchableOpacity>
               <View style={styles.headerActions}>
                 <TouchableOpacity 
-                  style={styles.favoriteButton} 
+                  style={styles.actionButton}
                   onPress={handleFavoritePress}
                 >
-                  <View style={styles.iconContainer}>
-                    <IconSymbol 
-                      name={isFavorite ? "heart.fill" : "heart"} 
-                      size={24} 
-                      color={isFavorite ? "#ff3b30" : "#000"}
-                    />
-                  </View>
+                  <IconSymbol 
+                    name={isFavorite ? "heart.fill" : "heart"}
+                    size={24}
+                    color={isFavorite ? "#ff3b30" : "#000"}
+                  />
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={styles.shareButton} 
+                  style={[styles.actionButton, { marginLeft: 16 }]}
                   onPress={() => {
                     Share.share({
                       title: movie.title,
@@ -164,13 +162,11 @@ export default function MovieDetailScreen() {
                     });
                   }}
                 >
-                  <View style={styles.iconContainer}>
-                    <IconSymbol 
-                      name="square.and.arrow.up" 
-                      size={24} 
-                      color="#000"
-                    />
-                  </View>
+                  <IconSymbol 
+                    name="square.and.arrow.up"
+                    size={24}
+                    color="#000"
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -181,21 +177,33 @@ export default function MovieDetailScreen() {
             />
             <View style={styles.content}>
               <Text style={styles.title}>{movie.title}</Text>
-              <View style={styles.ratingContainer}>
-                <Text style={styles.rating}>⭐️ {movie.vote_average.toFixed(1)} ({movie.vote_count} votes)</Text>
+              <View style={styles.infoContainer}>
                 {movie.release_date && (
-                  <Text style={styles.date}>
-                    {new Date(movie.release_date).getFullYear()}
+                  <Text style={styles.infoText}>
+                    Released: {new Date(movie.release_date).toLocaleDateString()}
                   </Text>
+                )}
+                {movie.genres && movie.genres.length > 0 && (
+                  <View style={styles.genresContainer}>
+                    <Text style={styles.infoText}>Genres: </Text>
+                    <View style={styles.genresList}>
+                      {movie.genres.map((genre, index) => (
+                        <View key={genre.id} style={styles.genreTag}>
+                          <Text style={styles.genreText}>
+                            {genre.name}
+                            {index < movie.genres.length - 1 ? ', ' : ''}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
                 )}
               </View>
               <Text style={styles.overview}>{movie.overview}</Text>
-              
               <RatingComponent 
                 key={key} 
                 movieId={Number(id)} 
               />
-
               <View style={styles.similarMoviesSection}>
                 <Text style={styles.sectionTitle}>Similar Movies</Text>
                 <FlatList
@@ -227,53 +235,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingTop: 50,
-    paddingBottom: 10,
-    backgroundColor: 'transparent',
+    paddingHorizontal: 16,
+    paddingTop: 48,
+    paddingBottom: 16,
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 10,
+    zIndex: 1,
   },
   backButton: {
-    padding: 10,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 25,
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  favoriteButton: {
-    marginLeft: 15,
-    padding: 10,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 25,
-    width: 50,
-    height: 50,
+  actionButton: {
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  shareButton: {
-    marginLeft: 15,
-    padding: 10,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 25,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   image: {
     width: width,
@@ -281,25 +270,37 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   content: {
-    paddingHorizontal: 15,
-    paddingTop: 15,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
+  infoContainer: {
+    marginVertical: 10,
   },
-  rating: {
+  infoText: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 5,
   },
-  date: {
+  genresContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  genresList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    flex: 1,
+  },
+  genreTag: {
+    marginRight: 4,
+  },
+  genreText: {
     fontSize: 16,
     color: '#666',
   },
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   similarMoviesList: {
-    paddingRight: 15,
+    paddingRight: 16,
   },
   similarMovieCard: {
     marginRight: 10,

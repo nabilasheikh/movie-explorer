@@ -49,9 +49,18 @@ export default function MovieCard({
 
   const renderRating = () => {
     if (typeof movie.vote_average === 'number') {
-      return <Text style={styles.rating}> {movie.vote_average.toFixed(1)}</Text>;
+      return (
+        <View style={styles.ratingContainer}>
+          <IconSymbol 
+            name="star.fill"
+            size={18}
+            color="#FFD700"
+          />
+          <Text style={styles.rating}> {movie.vote_average.toFixed(1)}</Text>
+        </View>
+      );
     }
-    return <Text style={styles.rating}>No rating</Text>;
+    return null;
   };
 
   const posterUri = movie.poster_path 
@@ -158,7 +167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     flex: 1,
     marginRight: 10,
@@ -168,12 +177,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   rating: {
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#666',
   },
   releaseDate: {
-    fontSize: 14,
+    fontSize: 18,
     color: '#666',
   },
   favoriteButton: {
