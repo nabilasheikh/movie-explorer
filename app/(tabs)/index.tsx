@@ -18,7 +18,7 @@ import { debounce } from 'lodash';
 import { useRouter } from 'expo-router';
 import { FlashList } from "@shopify/flash-list";
 import { Link } from 'expo-router';
-
+import MOVIE_GENRES from '../../utils/movieGenres';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function MoviesScreen() {
@@ -135,6 +135,7 @@ export default function MoviesScreen() {
       >
         <MovieCard 
           movie={item} 
+          genres={MOVIE_GENRES}
           onFavoritePress={(e) => {
             e.stopPropagation();
             console.log('Favorite toggle:', {

@@ -36,11 +36,28 @@ interface Movie {
   genre_ids: number[];
 }
 
+interface CastMember {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+}
+
+interface CrewMember {
+  id: number;
+  name: string;
+  job: string;
+  department: string;
+  profile_path: string | null;
+}
+
 export default function MovieDetailScreen() {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch<AppDispatch>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
+  const [cast, setCast] = useState<CastMember[]>([]);
+  const [crew, setCrew] = useState<CrewMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [key, setKey] = useState(0);
   const favorites = useSelector((state: RootState) => state.favorites?.movies ?? []);
@@ -49,16 +66,29 @@ export default function MovieDetailScreen() {
   const fetchMovieData = useCallback(async () => {
     try {
       setLoading(true);
-      const [movieResponse, similarResponse] = await Promise.all([
-        fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=d26b33b824f383978b65b0e0faf868f1`),
-        fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=d26b33b824f383978b65b0e0faf868f1`)
+      const apiKey = Constants.expoConfig?.extra?.TMDB_API_KEY;
+
+      const [movieResponse, similarResponse, creditsResponse] = await Promise.all([
+        fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`)
       ]);
 
-      const movieData = await movieResponse.json();
-      const similarData = await similarResponse.json();
+      const [movieData, similarData, creditsData] = await Promise.all([
+        movieResponse.json(),
+        similarResponse.json(),
+        creditsResponse.json()
+      ]);
+
+      const processedCast = creditsData.cast.slice(0, 10);
+      const processedCrew = creditsData.crew
+        .filter(member => ['Director', 'Producer', 'Screenplay'].includes(member.job))
+        .slice(0, 5);
 
       setMovie(movieData);
       setSimilarMovies(similarData.results);
+      setCast(processedCast);
+      setCrew(processedCrew);
     } catch (error) {
       console.error('Error fetching movie data:', error);
     } finally {
@@ -88,6 +118,28 @@ export default function MovieDetailScreen() {
   const handleSimilarMoviePress = (movieId: number) => {
     router.push(`/movie/${movieId}`);
   };
+
+  const renderCastMember = ({ item }: { item: CastMember }) => (
+    <View style={styles.castMemberContainer}>
+      <Image
+        source={{
+          uri: item.profile_path
+            ? `${TMDB_IMAGE_BASE_URL}${item.profile_path}`
+            : 'https://via.placeholder.com/100x150'
+        }}
+        style={styles.castImage}
+      />
+      <Text style={styles.castName} numberOfLines={1}>{item.name}</Text>
+      <Text style={styles.characterName} numberOfLines={1}>{item.character}</Text>
+    </View>
+  );
+
+  const renderCrewMember = ({ item }: { item: CrewMember }) => (
+    <View style={styles.crewMemberContainer}>
+      <Text style={styles.crewName}>{item.name}</Text>
+      <Text style={styles.crewJob}>{item.job}</Text>
+    </View>
+  );
 
   if (loading || !movie) {
     return (
@@ -204,17 +256,33 @@ export default function MovieDetailScreen() {
                 key={key} 
                 movieId={Number(id)} 
               />
-              <View style={styles.similarMoviesSection}>
-                <Text style={styles.sectionTitle}>Similar Movies</Text>
-                <FlatList
-                  data={similarMovies}
-                  renderItem={renderSimilarMovie}
-                  keyExtractor={(item) => item.id.toString()}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.similarMoviesList}
-                />
+              <Text style={styles.sectionTitle}>Cast</Text>
+              <FlatList
+                data={cast}
+                renderItem={renderCastMember}
+                keyExtractor={item => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.castList}
+              />
+              <Text style={styles.sectionTitle}>Crew</Text>
+              <View style={styles.crewList}>
+                {crew.map(member => (
+                  <View key={`${member.id}-${member.job}`} style={styles.crewMemberContainer}>
+                    <Text style={styles.crewName}>{member.name}</Text>
+                    <Text style={styles.crewJob}>{member.job}</Text>
+                  </View>
+                ))}
               </View>
+              <Text style={styles.sectionTitle}>Similar Movies</Text>
+              <FlatList
+                data={similarMovies}
+                renderItem={renderSimilarMovie}
+                keyExtractor={(item) => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.similarMoviesList}
+              />
             </View>
           </>
         ) : null}
@@ -315,7 +383,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    marginTop: 20,
     marginBottom: 10,
   },
   similarMoviesList: {
@@ -339,5 +408,65 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  castList: {
+    marginBottom: 20,
+  },
+  castMemberContainer: {
+    width: 100,
+    marginRight: 15,
+    alignItems: 'center',
+  },
+  castImage: {
+    width: 80,
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 5,
+  },
+  castName: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  characterName: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+  },
+  crewList: {
+    marginBottom: 20,
+  },
+  crewMemberContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  crewName: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  crewJob: {
+    fontSize: 14,
+    color: '#666',
+  },
+  genreContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginVertical: 10,
+  },
+  genreTag: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  genreText: {
+    fontSize: 14,
+    color: '#333',
   },
 });

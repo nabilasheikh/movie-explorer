@@ -30,12 +30,15 @@ interface MovieCardProps {
     overview?: string;
     backdrop_path?: string | null;
     vote_count?: number;
+    genre_ids?: number[];
   };
+  genres?: { [key: number]: string };
   onFavoritePress?: (e: React.TouchEvent) => void;
 }
 
 export default function MovieCard({ 
   movie,
+  genres,
   onFavoritePress 
 }: MovieCardProps) {
   const router = useRouter();
@@ -117,6 +120,15 @@ export default function MovieCard({
               </TouchableOpacity>
             </View>
           </View>
+          {movie.genre_ids && genres && movie.genre_ids.length > 0 && (
+            <Text style={styles.genres} numberOfLines={1}>
+              {movie.genre_ids
+                .slice(0, 2)
+                .map(id => genres[id])
+                .filter(Boolean)
+                .join(' • ')}
+            </Text>
+          )}
           <View style={styles.detailsContainer}>
             {renderRating()}
             <Text style={styles.releaseDate}>
@@ -193,5 +205,11 @@ const styles = StyleSheet.create({
   favoriteButton: {
     padding: 5,
     backgroundColor: 'transparent', 
+  },
+  genres: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    fontStyle: 'italic',
   },
 });
